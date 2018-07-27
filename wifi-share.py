@@ -4,6 +4,7 @@ import subprocess
 import sys
 import os
 from subprocess import Popen, PIPE, STDOUT
+from collections import OrderedDict
 import pyqrcode
 from huepy import *
 
@@ -36,6 +37,17 @@ def execute(commands, stdout, stdin, stderr):
         raise ProcessError()
     return out
 
+def escape(input_string):
+    translations = OrderedDict([('\\' , '\\\\'),
+    (':' , '\\:'),
+    (';' , '\\;'),
+    (',' , '\\,'),
+    ('"' , '\\"')])
+    escaped = input_string
+    for k,v in translations.items():
+        escaped = escaped.replace(k, v)
+    return escaped
+
 def main():
     global verbose
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
@@ -58,7 +70,7 @@ def main():
         print(bad('Error getting wifi password'))
         sys.exit(1)
 
-    img = pyqrcode.create('WIFI:T:WPA;S:'+wifi_name+';P:'+wifi_password+';;')
+    img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
     print(img.terminal())
 
 if __name__ == '__main__':
