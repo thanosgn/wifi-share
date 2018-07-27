@@ -35,7 +35,7 @@ def execute(commands, stdout, stdin, stderr):
     if rc != 0:
         log(out)
         raise ProcessError()
-    return out
+    return out.decode("utf-8")
 
 def escape(input_string):
     translations = OrderedDict([('\\' , '\\\\'),
