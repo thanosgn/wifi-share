@@ -4,6 +4,7 @@ import subprocess
 import sys
 import os
 from subprocess import Popen, PIPE, STDOUT
+import pyqrcode
 from huepy import *
 
 verbose = True
@@ -57,7 +58,8 @@ def main():
         print(bad('Error getting wifi password'))
         sys.exit(1)
 
-    print(good('Password:'), green(wifi_password))
+    img = pyqrcode.create('WIFI:T:WPA;S:'+wifi_name+';P:'+wifi_password+';;')
+    print(img.terminal())
 
 if __name__ == '__main__':
     main()
