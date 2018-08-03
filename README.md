@@ -1,4 +1,9 @@
 # wifi-share
+
+<p align="center">
+  <img src="https://thanosgn.github.io/assets/qr-wifi.svg" height="30%" width="30%">
+</p>
+
 Instantly share your WIFI connection using a QR code.
 Scan it with your Android phone and connect automatically.
 
