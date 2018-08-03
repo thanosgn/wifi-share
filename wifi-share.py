@@ -61,6 +61,8 @@ def main():
         print(bad('Error getting wifi name'))
         sys.exit(1)
 
+    log(info('You are connected to ' + orange(wifi_name) + ' Wi-Fi'))
+
     try:
         wifi_password = execute([['sudo', 'cat', os.path.join('/etc/NetworkManager/system-connections', wifi_name)],
                                 ['grep', 'psk='],
