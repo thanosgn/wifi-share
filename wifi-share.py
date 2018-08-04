@@ -34,8 +34,7 @@ def execute(commands, stdout, stdin, stderr):
     rc = process.returncode
     out = out.decode("utf-8")
     if rc != 0:
-        log(out)
-        raise ProcessError()
+        raise ProcessError(out)
     return out
 
 def escape(input_string):
@@ -59,18 +58,22 @@ def main():
     try:
         wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
     except ProcessError as e:
+        log(info(e))
         print(bad('Error getting wifi name'))
+        print(que('Are you sure you are connected to a WiFi network?'))
         sys.exit(1)
 
     log(info('You are connected to ' + orange(wifi_name) + ' Wi-Fi'))
 
     try:
-        wifi_password = execute([['sudo', 'cat', os.path.join('/etc/NetworkManager/system-connections', wifi_name)],
-                                ['grep', 'psk='],
-                                ['awk', '-F', '=', '{print $2}']],
-                                stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
-    except ProcessError as e:
+        with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
+            for line in network_file:
+                if 'psk=' in line:
+                    wifi_password = line.split('=')[1]
+    except IOError as e:
+        log(info(e))
         print(bad('Error getting wifi password'))
+        print(que('Are you root?'))
         sys.exit(1)
 
     if wifi_password != '':
