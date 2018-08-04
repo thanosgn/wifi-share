@@ -6,6 +6,7 @@ import os
 from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
 import pyqrcode
+import png
 from huepy import *
 
 verbose = True
@@ -57,6 +58,10 @@ def main():
     global verbose
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
     parser.add_argument('-v', '--verbose', help = 'Enable verbose output.', action = 'store_true')
+    parser.add_argument('-i', '--image', help = 'Specify a filename for the generated QR code image. (.png or .svg).\
+                                                  Default [WIFINAME].svg.\
+                                                  If argument is not provided the QR code will be displayed\
+                                                  on the console.', nargs='?', default = 'no-image')
     args = parser.parse_args()
     verbose = args.verbose
 
@@ -89,7 +94,23 @@ def main():
         log(info('No password needed for this network.'))
         img = pyqrcode.create('WIFI:S:' + escape(wifi_name) + ';;;')
 
-    print(img.terminal())
+    if args.image == 'no-image': # If user did not enter the -i/--image argument
+        print(img.terminal())
+    else:
+        if args.image == None:  # If user selected the -i/--image argument, but did not give any filename
+            filename = wifi_name + '.svg'
+        else: # If user specified a filename with the -i/--image argument
+            if args.image.endswith('.svg'):
+                filename = args.image
+                img.svg(filename, scale = 4, background = 'white')
+            elif args.image.endswith('.png'):
+                filename = args.image
+                img.png(filename, scale = 4)
+            else:
+                filename = args.image + '.svg'
+                img.svg(filename, scale = 4, background = 'white')
+        print(good('Qr code drawn in '+filename))
+
 
 if __name__ == '__main__':
     main()
