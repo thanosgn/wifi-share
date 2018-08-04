@@ -70,6 +70,7 @@ def main():
 
     log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
 
+    wifi_password = ''
     try:
         with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
             for line in network_file:
