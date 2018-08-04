@@ -58,12 +58,12 @@ def main():
     try:
         wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
     except ProcessError as e:
-        log(info(e))
-        print(bad('Error getting wifi name'))
+        log(bad(e))
+        print(bad('Error getting Wi-Fi name'))
         print(que('Are you sure you are connected to a WiFi network?'))
         sys.exit(1)
 
-    log(info('You are connected to ' + orange(wifi_name) + ' Wi-Fi'))
+    log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
 
     try:
         with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
@@ -71,13 +71,13 @@ def main():
                 if 'psk=' in line:
                     wifi_password = line.split('=')[1]
     except IOError as e:
-        log(info(e))
-        print(bad('Error getting wifi password'))
+        log(bad(e))
+        print(bad('Error getting Wi-Fi password'))
         print(que('Are you root?'))
         sys.exit(1)
 
     if wifi_password != '':
-        log(info('The  password is ' + orange(wifi_password)))
+        log(good('The  password is ' + green(wifi_password)))
         img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
     else:
         log(info('No password needed for this network.'))
