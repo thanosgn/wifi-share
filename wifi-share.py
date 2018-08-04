@@ -72,7 +72,13 @@ def main():
         print(bad('Error getting wifi password'))
         sys.exit(1)
 
-    img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
+    if wifi_password != '':
+        log(info('The  password is ' + orange(wifi_password)))
+        img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
+    else:
+        log(info('No password needed for this network.'))
+        img = pyqrcode.create('WIFI:S:' + escape(wifi_name) + ';;;')
+
     print(img.terminal())
 
 if __name__ == '__main__':
