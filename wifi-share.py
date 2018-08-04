@@ -74,7 +74,7 @@ def main():
         with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
             for line in network_file:
                 if 'psk=' in line:
-                    wifi_password = line.split('=')[1]
+                    wifi_password = line.split('=')[1].rstrip('\r\n')
     except IOError as e:
         log(bad(e))
         print(bad('Error getting Wi-Fi password'))
