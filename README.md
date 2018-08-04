@@ -5,7 +5,7 @@
 </p>
 
 Instantly share your WIFI connection using a QR code.
-Scan it with your Android phone and connect automatically.
+Scan it with your phone and connect automatically.
 
 ## Instalation
 ```
