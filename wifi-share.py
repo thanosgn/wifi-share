@@ -32,10 +32,11 @@ def execute(commands, stdout, stdin, stderr):
         input = process.stdout
     out, err = process.communicate();
     rc = process.returncode
+    out = out.decode("utf-8")
     if rc != 0:
         log(out)
         raise ProcessError()
-    return out.decode("utf-8")
+    return out
 
 def escape(input_string):
     translations = OrderedDict([('\\' , '\\\\'),
