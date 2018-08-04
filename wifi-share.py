@@ -32,9 +32,14 @@ def execute(commands, stdout, stdin, stderr):
         input = process.stdout
     out, err = process.communicate();
     rc = process.returncode
-    out = out.decode("utf-8")
+    if out != None:
+        out = out.decode("utf-8").rstrip()
     if rc != 0:
-        raise ProcessError(out)
+        if err != None:
+            err = err.decode("utf-8").rstrip()
+            raise ProcessError(err)
+        else:
+            raise ProcessError(out)
     return out
 
 def escape(input_string):
