@@ -59,10 +59,11 @@ def main():
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
     parser.add_argument('-v', '--verbose', help = 'Enable verbose output.', action = 'store_true')
     parser.add_argument('-i', '--image', help = 'Specify a filename for the generated QR code image. (.png or .svg).\
-                                                  Default [WIFINAME].svg.\
+                                                  Default: [WIFINAME].svg.\
                                                   If argument is not provided the QR code will be displayed\
                                                   on the console.', nargs='?', default = 'no-image')
-    parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.')
+    parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.\
+                                                Default: the SSID of the network you are currently connected.')
     args = parser.parse_args()
     verbose = args.verbose
 
