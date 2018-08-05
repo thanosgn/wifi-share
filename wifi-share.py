@@ -62,18 +62,22 @@ def main():
                                                   Default [WIFINAME].svg.\
                                                   If argument is not provided the QR code will be displayed\
                                                   on the console.', nargs='?', default = 'no-image')
+    parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.')
     args = parser.parse_args()
     verbose = args.verbose
 
-    try:
-        wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
-    except ProcessError as e:
-        log(bad(e))
-        print(bad('Error getting Wi-Fi name'))
-        print(que('Are you sure you are connected to a WiFi network?'))
-        sys.exit(1)
-
-    log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
+    wifi_name = args.ssid
+    if args.ssid == None:
+        try:
+            wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+        except ProcessError as e:
+            log(bad(e))
+            print(bad('Error getting Wi-Fi name'))
+            print(que('Are you sure you are connected to a Wi-Fi network?'))
+            sys.exit(1)
+        log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
+    else:
+        log(run('Retrieveing the password for ' + green(wifi_name) + ' Wi-Fi'))
 
     wifi_password = ''
     try:
@@ -84,7 +88,10 @@ def main():
     except IOError as e:
         log(bad(e))
         print(bad('Error getting Wi-Fi password'))
-        print(que('Are you root?'))
+        if e.errno == 13:
+            print(que('Are you root?'))
+        elif e.errno == 2 and args.ssid != None:
+            print(que('Are you sure SSID is correct?'))
         sys.exit(1)
 
     if wifi_password != '':
