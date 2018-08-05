@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
 import pyqrcode
 import png
+import inquirer
 from huepy import *
 
 verbose = True
@@ -64,11 +65,23 @@ def main():
                                                   on the console.', nargs='?', default = 'no-image')
     parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.\
                                                 Default: the SSID of the network you are currently connected.')
+    parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks to choose from.', action = 'store_true')
     args = parser.parse_args()
     verbose = args.verbose
 
     wifi_name = args.ssid
-    if args.ssid == None:
+    if args.list:
+        available_networks = sorted(os.listdir('/etc/NetworkManager/system-connections'))
+        questions = [
+            inquirer.List('network',
+                        message='SSID',
+                        choices=available_networks,
+                    )
+        ]
+        answer = inquirer.prompt(questions)
+        wifi_name = answer['network']
+        log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
+    elif args.ssid == None:
         try:
             wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
         except ProcessError as e:
@@ -78,7 +91,7 @@ def main():
             sys.exit(1)
         log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
     else:
-        log(run('Retrieveing the password for ' + green(wifi_name) + ' Wi-Fi'))
+        log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
 
     wifi_password = ''
     try:
