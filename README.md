@@ -18,6 +18,11 @@ pip install -r requirements.txt
 ```
 python wifi-share.py
 ```
+## Example
+<p align="center">
+  <img src="https://thanosgn.github.io/assets/wifi-share-example.png">
+</p>
+
 ## Options
 All the below arguments are optional.
 The default behavior is to generate a QR code on the terminal for the network you are currently connected.
