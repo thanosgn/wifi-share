@@ -1,7 +1,5 @@
-# wifi-share
-
 <p align="center">
-  <img src="https://github.com/familqasimov/wifi-share/blob/master/LOGO.svg" height="30%" width="30%">
+  <img src="https://github.com/thanosgn/wifi-share/blob/master/logos/LOGOTYPE_H.svg" height="30%" width="30%">
 </p>
 
 Instantly share your WIFI connection using a QR code.
