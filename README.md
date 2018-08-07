@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/thanosgn/wifi-share/blob/master/logos/LOGOTYPE_H.svg" height="30%" width="30%">
+  <img src="https://github.com/thanosgn/wifi-share/blob/master/logos/LOGOTYPE_H.svg" height="50%" width="50%">
 </p>
 
 Instantly share your WIFI connection using a QR code.
