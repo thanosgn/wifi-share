@@ -28,7 +28,7 @@ All the below arguments are optional.
 The default behavior is to generate a QR code on the terminal for the network you are currently connected.
 However, there are many options available if you want something besides the default scenario.
 ```
-usage: wifi-share.py [-h] [-v] [-i [IMAGE]] [-s SSID] [-l]
+usage: wifi-share.py [-h] [-v] [-i [IMAGE]] [-s SSID] [-p PASSWORD] [-l]
 
 Wi-Fi Share
 
@@ -42,7 +42,10 @@ optional arguments:
                         console.
   -s SSID, --ssid SSID  Specify the SSID you want the password of. Default:
                         the SSID of the network you are currently connected.
+  -p PASSWORD, --password PASSWORD
+                        Specify a desired password to be used instead of the
+                        sotred one.
   -l, --list            Display a list of stored Wi-Fi networks to choose
                         from.
-                        ```
+```
 

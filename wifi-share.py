@@ -65,6 +65,7 @@ def main():
                                                   on the console.', nargs='?', default = 'no-image')
     parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.\
                                                 Default: the SSID of the network you are currently connected.')
+    parser.add_argument('-p', '--password', help = 'Specify a desired password to be used instead of the sotred one.')
     parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks to choose from.', action = 'store_true')
     args = parser.parse_args()
     verbose = args.verbose
@@ -94,22 +95,25 @@ def main():
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
 
     wifi_password = ''
-    try:
-        with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
-            for line in network_file:
-                if 'psk=' in line:
-                    wifi_password = line.split('=')[1].rstrip('\r\n')
-    except IOError as e:
-        log(bad(e))
-        print(bad('Error getting Wi-Fi password'))
-        if e.errno == 13:
-            print(que('Are you root?'))
-        elif e.errno == 2 and args.ssid != None:
-            print(que('Are you sure SSID is correct?'))
-        sys.exit(1)
+    if args.password != None:
+        wifi_password = args.password
+    else:
+        try:
+            with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
+                for line in network_file:
+                    if 'psk=' in line:
+                        wifi_password = line.split('=')[1].rstrip('\r\n')
+        except IOError as e:
+            log(bad(e))
+            print(bad('Error getting Wi-Fi password'))
+            if e.errno == 13:
+                print(que('Are you root?'))
+            elif e.errno == 2 and args.ssid != None:
+                print(que('Are you sure SSID is correct?'))
+            sys.exit(1)
 
     if wifi_password != '':
-        log(good('The  password is ' + green(wifi_password)))
+        log(good('The password is ' + green(wifi_password)))
         img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
     else:
         log(info('No password needed for this network.'))
