@@ -9,6 +9,7 @@ import pyqrcode
 import png
 import inquirer
 from huepy import *
+import platform
 
 verbose = True
 
@@ -69,8 +70,11 @@ def main():
     parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks to choose from.', action = 'store_true')
     args = parser.parse_args()
     verbose = args.verbose
-
     wifi_name = args.ssid
+
+    system = platform.system()
+
+
     if args.list:
         available_networks = sorted(os.listdir('/etc/NetworkManager/system-connections'))
         questions = [
@@ -84,7 +88,15 @@ def main():
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     elif args.ssid == None:
         try:
-            wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+            if system == 'Windows':
+                output = execute(['netsh', 'wlan', 'show', 'interfaces'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                for line in output.splitlines():
+                    if line.startswith('    SSID'):
+                       wifi_name = line.split(':')[1].lstrip()
+                if wifi_name == None:
+                    raise ProcessError
+            else:
+                wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
         except ProcessError as e:
             log(bad(e))
             print(bad('Error getting Wi-Fi name'))
@@ -99,10 +111,18 @@ def main():
         wifi_password = args.password
     else:
         try:
-            with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
-                for line in network_file:
-                    if 'psk=' in line:
-                        wifi_password = line.split('=')[1].rstrip('\r\n')
+            if system == 'Windows':
+                output = execute(['netsh', 'wlan', 'show', 'profile', wifi_name, 'key=clear'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                for line in output.splitlines():
+                    if line.startswith('    Key Content'):
+                       wifi_password = line.split(':')[1].lstrip()
+                if wifi_name == None:
+                    raise ProcessError
+            else:
+                with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
+                    for line in network_file:
+                        if 'psk=' in line:
+                            wifi_password = line.split('=')[1].rstrip('\r\n')
         except IOError as e:
             log(bad(e))
             print(bad('Error getting Wi-Fi password'))
