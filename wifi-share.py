@@ -144,6 +144,7 @@ def main():
     else:
         if args.image == None:  # If user selected the -i/--image argument, but did not give any filename
             filename = wifi_name + '.svg'
+            img.svg(filename, scale = 4, background = 'white')
         else: # If user specified a filename with the -i/--image argument
             if args.image.endswith('.svg'):
                 filename = args.image
