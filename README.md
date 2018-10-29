@@ -16,7 +16,7 @@ If you don't have `make` you can always use `pip install -r requirements.txt` to
 
 ## Usage (default)
 ```
-python wifi-share.py
+wifi-share
 ```
 ## Example
 <p align="center">
@@ -28,7 +28,7 @@ All the below arguments are optional.
 The default behavior is to generate a QR code on the terminal for the network you are currently connected.
 However, there are many options available if you want something besides the default scenario.
 ```
-usage: wifi-share.py [-h] [-v] [-i [IMAGE]] [-s SSID] [-p PASSWORD] [-l]
+usage: wifi-share [-h] [-v] [-i [IMAGE]] [-s SSID] [-p PASSWORD] [-l]
 
 Wi-Fi Share
 
