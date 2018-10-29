@@ -5,12 +5,14 @@
 Instantly share your WIFI connection using a QR code.
 Scan it with your phone and connect automatically.
 
-## Instalation
+## Installation (using make)
 ```
 git clone https://github.com/thanosgn/wifi-share.git
 cd wifi-share
-pip install -r requirements.txt
+make install
 ```
+You can uninstall at any time using `make uninstall`.
+If you don't have `make` you can always use `pip install -r requirements.txt` to install the necessary requirements.
 
 ## Usage (default)
 ```
@@ -46,4 +48,3 @@ optional arguments:
   -l, --list            Display a list of stored Wi-Fi networks to choose
                         from.
 ```
-
