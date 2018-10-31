@@ -1,4 +1,4 @@
 PyQRCode==1.2.1
 huepy==0.9.8.1
-inquirer==2.2.0
+PyInquirer==1.0.2
 pypng==0.0.18

@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
 import pyqrcode
 import png
-import inquirer
+from PyInquirer import prompt
 from huepy import *
 
 verbose = True
@@ -73,14 +73,16 @@ def main():
 
     wifi_name = args.ssid
     if args.list:
-        available_networks = sorted(os.listdir('/etc/NetworkManager/system-connections'))
+        available_networks = sorted(os.listdir(u'/etc/NetworkManager/system-connections'))
         questions = [
-            inquirer.List('network',
-                        message='SSID',
-                        choices=available_networks,
-                    )
+            {
+                'type': 'list',
+                'name': 'network',
+                'message': 'SSID:',
+                'choices' : available_networks
+            }
         ]
-        answer = inquirer.prompt(questions)
+        answer = prompt(questions)
         wifi_name = answer['network']
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     elif args.ssid == None:
