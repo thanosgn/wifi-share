@@ -6,8 +6,10 @@ import sys
 import os
 from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
-import pyqrcode
-import png
+# import pyqrcode
+import qrcode
+import qrcode.image.svg
+import PIL
 from PyInquirer import prompt
 from huepy import *
 
@@ -117,27 +119,37 @@ def main():
 
     if wifi_password != '':
         log(good('The password is ' + green(wifi_password)))
-        img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
+        data = 'WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;'
     else:
         log(info('No password needed for this network.'))
-        img = pyqrcode.create('WIFI:S:' + escape(wifi_name) + ';;;')
+        data = 'WIFI:S:' + escape(wifi_name) + ';;;'
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
 
     if args.image == 'no-image': # If user did not enter the -i/--image argument
-        print(img.terminal())
+        qr.print_tty()
     else:
+        img = qrcode.make(data)
         if args.image == None:  # If user selected the -i/--image argument, but did not give any filename
+            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
             filename = wifi_name + '.svg'
-            img.svg(filename, scale = 4, background = 'white')
         else: # If user specified a filename with the -i/--image argument
             if args.image.endswith('.svg'):
+                img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image
-                img.svg(filename, scale = 4, background = 'white')
             elif args.image.endswith('.png'):
                 filename = args.image
-                img.png(filename, scale = 4)
+                img = qr.make_image(fill_color="black", back_color="white")
             else:
+                img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image + '.svg'
-                img.svg(filename, scale = 4, background = 'white')
+        img.save(filename)
         print(good('Qr code drawn in '+filename))
 
 
