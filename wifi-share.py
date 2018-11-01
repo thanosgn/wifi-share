@@ -58,6 +58,12 @@ def escape(input_string):
         escaped = escaped.replace(k, v)
     return escaped
 
+def fix_ownership(path): # Change the owner of the file to SUDO_UID
+    uid = os.environ.get('SUDO_UID')
+    gid = os.environ.get('SUDO_GID')
+    if uid is not None:
+        os.chown(path, int(uid), int(gid))
+
 def main():
     global verbose
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
@@ -150,6 +156,7 @@ def main():
                 img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image + '.svg'
         img.save(filename)
+        fix_ownership(filename)
         print(good('Qr code drawn in '+filename))
 
 
