@@ -6,7 +6,6 @@ import sys
 import os
 from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
-# import pyqrcode
 import qrcode
 import qrcode.image.svg
 import PIL
