@@ -109,3 +109,6 @@ venv.bak/
 *.jpg
 *.jpeg
 *.eps
+
+# Tests
+tests/
