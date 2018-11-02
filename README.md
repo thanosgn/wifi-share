@@ -1,9 +1,12 @@
 <p align="center">
-  <img src="https://github.com/thanosgn/wifi-share/blob/master/logos/LOGOTYPE_H.svg" height="50%" width="50%">
+    <img src="https://github.com/thanosgn/wifi-share/blob/master/logos/LOGOTYPE_H.svg" height="50%" width="50%">
+    <p align="center">Instantly share your WIFI connection using a QR code. <br>
+    Scan it with your phone and connect automatically.</p>
+    <a href="/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg"></a>
+    <a href="/LICENSE"><img alt="Python version" src="https://img.shields.io/badge/python-2 %7C 3-blue.svg"></a>
+    <a href="/LICENSE"><img alt="Platform support" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey.svg"></a>
 </p>
 
-Instantly share your WIFI connection using a QR code.
-Scan it with your phone and connect automatically.
 
 ## Installation (using make)
 ```
