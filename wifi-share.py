@@ -5,9 +5,10 @@ import sys
 import os
 from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
-import pyqrcode
-import png
-import inquirer
+import qrcode
+import qrcode.image.svg
+import PIL
+from PyInquirer import prompt
 from huepy import *
 import platform
 
@@ -56,18 +57,42 @@ def escape(input_string):
         escaped = escaped.replace(k, v)
     return escaped
 
+def fix_ownership(path): # Change the owner of the file to SUDO_UID
+    uid = os.environ.get('SUDO_UID')
+    gid = os.environ.get('SUDO_GID')
+    if uid is not None:
+        os.chown(path, int(uid), int(gid))
+
+def create_QR_string(ssid = None, security = 'WPA', password = None):
+    if ssid != None:
+        if password != None:
+            return 'WIFI:T:WPA;S:' + escape(ssid) + ';P:' + escape(password) + ';;'
+        else:
+             return 'WIFI:S:' + escape(ssid) + ';;;'
+    return ''
+
+def create_QR_object(data):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    return qr
+
 def main():
     global verbose
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
     parser.add_argument('-v', '--verbose', help = 'Enable verbose output.', action = 'store_true')
     parser.add_argument('-i', '--image', help = 'Specify a filename for the generated QR code image. (.png or .svg).\
                                                   Default: [WIFINAME].svg.\
-                                                  If argument is not provided the QR code will be displayed\
+                                                  If -i/--image argument is not provided the QR code will be displayed\
                                                   on the console.', nargs='?', default = 'no-image')
     parser.add_argument('-s', '--ssid', help = 'Specify the SSID you want the password of.\
                                                 Default: the SSID of the network you are currently connected.')
-    parser.add_argument('-p', '--password', help = 'Specify a desired password to be used instead of the sotred one.')
-    parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks to choose from.', action = 'store_true')
+    parser.add_argument('-p', '--password', help = 'Specify a desired password to be used instead of the stored one.')
+    parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks (SSIDs) to choose from.', action = 'store_true')
     args = parser.parse_args()
     verbose = args.verbose
     wifi_name = args.ssid
@@ -76,14 +101,30 @@ def main():
 
 
     if args.list:
-        available_networks = sorted(os.listdir('/etc/NetworkManager/system-connections'))
+        if system == 'Windows':
+            available_networks = []
+            try:
+                output = execute(['netsh', 'wlan', 'show', 'profiles'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                for line in output.splitlines():
+                    if line.startswith('    All User Profile'):
+                       available_networks.append(line.split(':')[1].lstrip())
+                if available_networks == []:
+                    raise ProcessError
+            except ProcessError as e:
+                log(bad(e))
+                print(bad('Error getting Wi-Fi connections'))
+                sys.exit(1)
+        else:
+            available_networks = sorted(os.listdir(u'/etc/NetworkManager/system-connections'))
         questions = [
-            inquirer.List('network',
-                        message='SSID',
-                        choices=available_networks,
-                    )
+            {
+                'type': 'list',
+                'name': 'network',
+                'message': 'SSID:',
+                'choices' : available_networks
+            }
         ]
-        answer = inquirer.prompt(questions)
+        answer = prompt(questions)
         wifi_name = answer['network']
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     elif args.ssid == None:
@@ -134,27 +175,33 @@ def main():
 
     if wifi_password != '':
         log(good('The password is ' + green(wifi_password)))
-        img = pyqrcode.create('WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;')
+        data = create_QR_string(ssid = wifi_name, password = wifi_password)
     else:
         log(info('No password needed for this network.'))
-        img = pyqrcode.create('WIFI:S:' + escape(wifi_name) + ';;;')
+        data = create_QR_string(ssid = wifi_name)
+
+    qr = create_QR_object(data)
 
     if args.image == 'no-image': # If user did not enter the -i/--image argument
-        print(img.terminal())
+        qr.print_tty()
     else:
+        img = qrcode.make(data)
         if args.image == None:  # If user selected the -i/--image argument, but did not give any filename
+            img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
             filename = wifi_name + '.svg'
-            img.svg(filename, scale = 4, background = 'white')
         else: # If user specified a filename with the -i/--image argument
             if args.image.endswith('.svg'):
+                img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image
-                img.svg(filename, scale = 4, background = 'white')
             elif args.image.endswith('.png'):
                 filename = args.image
-                img.png(filename, scale = 4)
+                img = qr.make_image(fill_color="black", back_color="white")
             else:
+                img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image + '.svg'
-                img.svg(filename, scale = 4, background = 'white')
+        img.save(filename)
+        if system != 'Windows':
+            fix_ownership(filename)
         print(good('Qr code drawn in '+filename))
 
 

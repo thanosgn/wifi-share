@@ -1,4 +1,4 @@
-PyQRCode==1.2.1
+qrcode==6.0
 huepy==0.9.8.1
-inquirer==2.2.0
-pypng==0.0.18
+Pillow==5.3.0
+PyInquirer==1.0.2
