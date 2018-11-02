@@ -37,14 +37,14 @@ optional arguments:
   -v, --verbose         Enable verbose output.
   -i [IMAGE], --image [IMAGE]
                         Specify a filename for the generated QR code image.
-                        (.png or .svg). Default: [WIFINAME].svg. If argument
-                        is not provided the QR code will be displayed on the
-                        console.
+                        (.png or .svg). Default: [WIFINAME].svg. If -i/--image
+                        argument is not provided the QR code will be displayed
+                        on the console.
   -s SSID, --ssid SSID  Specify the SSID you want the password of. Default:
                         the SSID of the network you are currently connected.
   -p PASSWORD, --password PASSWORD
                         Specify a desired password to be used instead of the
-                        sotred one.
+                        stored one.
   -l, --list            Display a list of stored Wi-Fi networks to choose
                         from.
 ```
