@@ -4,8 +4,8 @@
     Scan it with your phone and connect automatically.</p>
     <p align="center">
         <a href="/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg"></a>
-        <a href="/LICENSE"><img alt="Python version" src="https://img.shields.io/badge/python-2 %7C 3-blue.svg"></a>
-        <a href="/LICENSE"><img alt="Platform support" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey.svg"></a>
+        <img alt="Python version" src="https://img.shields.io/badge/python-2 %7C 3-blue.svg">
+        <img alt="Platform support" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey.svg">
     </p>
 </p>
 
