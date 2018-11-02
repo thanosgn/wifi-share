@@ -23,6 +23,11 @@ If you don't have `make` you can always use `pip install -r requirements.txt` to
 ```
 wifi-share
 ```
+
+If you did not use the provided Makefile, and you don't have a symlink to the python script, then using `python wifi-share.py` will do just fine.
+
+See also the [_Notes_](#notes) section below.
+
 ## Example
 <p align="center">
   <img src="https://thanosgn.github.io/assets/wifi-share-example.png">
@@ -53,3 +58,8 @@ optional arguments:
   -l, --list            Display a list of stored Wi-Fi networks to choose
                         from.
 ```
+
+## Notes
+Unfortunately, in Linux systems using _NetworkManager_ root privileges are required in ordered to read the password of a saved WiFi connection. That is why, unless you are `root`, you should run the script with `sudo` (as shown in the example).
+
+The same does not apply on Windows systems. `netsh` does not need administrator privileges.
