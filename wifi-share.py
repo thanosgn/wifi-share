@@ -63,6 +63,24 @@ def fix_ownership(path): # Change the owner of the file to SUDO_UID
     if uid is not None:
         os.chown(path, int(uid), int(gid))
 
+def create_QR_string(ssid = None, security = 'WPA', password = None):
+    if ssid != None:
+        if password != None:
+            return 'WIFI:T:WPA;S:' + escape(ssid) + ';P:' + escape(password) + ';;'
+        else:
+             return 'WIFI:S:' + escape(ssid) + ';;;'
+    return ''
+
+def create_QR_object(data):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    return qr
+
 def main():
     global verbose
     parser = argparse.ArgumentParser(description='Wi-Fi Share')
@@ -124,18 +142,12 @@ def main():
 
     if wifi_password != '':
         log(good('The password is ' + green(wifi_password)))
-        data = 'WIFI:T:WPA;S:' + escape(wifi_name) + ';P:' + escape(wifi_password) + ';;'
+        data = create_QR_string(ssid = wifi_name, password = wifi_password)
     else:
         log(info('No password needed for this network.'))
-        data = 'WIFI:S:' + escape(wifi_name) + ';;;'
+        data = create_QR_string(ssid = wifi_name)
 
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(data)
+    qr = create_QR_object(data)
 
     if args.image == 'no-image': # If user did not enter the -i/--image argument
         qr.print_tty()
