@@ -19,6 +19,12 @@ make install
 You can uninstall at any time using `make uninstall`.
 If you don't have `make` you can always use `pip install -r requirements.txt` to install the necessary requirements.
 
+Obviously `python` and `pip` are required.
+
+The script is compatible with both `python2` and `python3`
+
+On windows you can use `cmd` to install and use the script.
+
 ## Usage (default)
 ```
 wifi-share
