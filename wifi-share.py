@@ -15,6 +15,15 @@ import platform
 
 verbose = True
 
+ascii_art='''
+ __          ___        ______ _      _____ _
+ \ \        / (_)      |  ____(_)    / ____| |
+  \ \  /\  / / _ ______| |__   _    | (___ | |__   __ _ _ __ ___
+   \ \/  \/ / | |______|  __| | |    \___ \| '_ \ / _` | '__/ _ \\
+    \  /\  /  | |      | |    | |    ____) | | | | (_| | | |  __/
+     \/  \/   |_|      |_|    |_|   |_____/|_| |_|\__,_|_|  \___|
+'''
+
 def log(message):
     if verbose:
         print(message, file=sys.stderr)
@@ -84,7 +93,7 @@ def create_QR_object(data):
 
 def main():
     global verbose
-    parser = argparse.ArgumentParser(description='Wi-Fi Share')
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=ascii_art)
     parser.add_argument('-v', '--verbose', help = 'Enable verbose output.', action = 'store_true')
     parser.add_argument('-i', '--image', help = 'Specify a filename for the generated QR code image. (.png or .svg).\
                                                   Default: [WIFINAME].svg.\

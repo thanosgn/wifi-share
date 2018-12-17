@@ -46,7 +46,12 @@ However, there are many options available if you want something besides the defa
 ```
 usage: wifi-share [-h] [-v] [-i [IMAGE]] [-s SSID] [-p PASSWORD] [-l]
 
-Wi-Fi Share
+ __          ___        ______ _      _____ _
+ \ \        / (_)      |  ____(_)    / ____| |
+  \ \  /\  / / _ ______| |__   _    | (___ | |__   __ _ _ __ ___
+   \ \/  \/ / | |______|  __| | |    \___ \| '_ \ / _` | '__/ _ \
+    \  /\  /  | |      | |    | |    ____) | | | | (_| | | |  __/
+     \/  \/   |_|      |_|    |_|   |_____/|_| |_|\__,_|_|  \___|
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -61,8 +66,9 @@ optional arguments:
   -p PASSWORD, --password PASSWORD
                         Specify a desired password to be used instead of the
                         stored one.
-  -l, --list            Display a list of stored Wi-Fi networks to choose
-                        from.
+  -l, --list            Display a list of stored Wi-Fi networks (SSIDs) to
+                        choose from.
+
 ```
 
 ## Notes
