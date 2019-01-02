@@ -1,7 +1,7 @@
 DESTINATION_DIR := /usr/local/bin
 CURRENT_DIR := $(realpath ./)
 LINK_NAME := wifi-share
-PYTHON_INSTALLED := $(shell command -v pysthon 2> /dev/null)
+PYTHON_INSTALLED := $(shell command -v python 2> /dev/null)
 PIP_INSTALLED := $(shell command -v pip 2> /dev/null)
 ifdef PYTHON_INSTALLED
 	PYV := $(shell python -c "import sys;t='{v[0]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)")
