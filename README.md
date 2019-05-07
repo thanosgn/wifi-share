@@ -5,7 +5,7 @@
     <p align="center">
         <a href="/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg"></a>
         <img alt="Python version" src="https://img.shields.io/badge/python-2 %7C 3-blue.svg">
-        <img alt="Platform support" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey.svg">
+        <img alt="Platform support" src="https://img.shields.io/badge/platform-linux%20|%20windows%20|%20macos-lightgrey.svg">
     </p>
 </p>
 
@@ -23,7 +23,7 @@ Obviously `python` and `pip` are required.
 
 The script is compatible with both `python2` and `python3`
 
-On windows you can use `cmd` to install and use the script.
+On Windows you can use `cmd` to install and use the script.
 
 ## Usage (default)
 ```
@@ -75,3 +75,8 @@ optional arguments:
 Unfortunately, in Linux systems using _NetworkManager_ root privileges are required in ordered to read the password of a saved WiFi connection. That is why, unless you are `root`, you should run the script with `sudo` (as shown in the example).
 
 The same does not apply on Windows systems. `netsh` does not need administrator privileges.
+
+On MacOS the `airport` utility is used to access saved Wi-Fi information. While you do not need `sudo` to run the script, you will get a popup prompt asking for your username and password. This is needed in MacOS in order to read information from the keychain.
+<p align="center">
+  <img src="https://thanosgn.github.io/assets/macos-prompt.png">
+</p>

@@ -112,3 +112,6 @@ venv.bak/
 
 # Tests
 tests/
+
+#MacOS specific
+.DS_Store
