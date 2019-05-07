@@ -167,7 +167,7 @@ def main():
                 for line in output.splitlines():
                     if line.startswith('    Key Content'):
                        wifi_password = line.split(':')[1].lstrip()
-                if wifi_name == None:
+                if wifi_password == None:
                     raise ProcessError
             else:
                 with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
