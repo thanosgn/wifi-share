@@ -14,7 +14,7 @@
 ```
 git clone https://github.com/thanosgn/wifi-share.git
 cd wifi-share
-make install
+sudo make install
 ```
 You can uninstall at any time using `make uninstall`.
 If you don't have `make` you can always use `pip install -r requirements.txt` to install the necessary requirements.
