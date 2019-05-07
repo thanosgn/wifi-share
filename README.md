@@ -23,7 +23,7 @@ Obviously `python` and `pip` are required.
 
 The script is compatible with both `python2` and `python3`
 
-On windows you can use `cmd` to install and use the script.
+On Windows you can use `cmd` to install and use the script.
 
 ## Usage (default)
 ```
@@ -76,7 +76,7 @@ Unfortunately, in Linux systems using _NetworkManager_ root privileges are requi
 
 The same does not apply on Windows systems. `netsh` does not need administrator privileges.
 
-On MacOS the airport utility is used to access saved Wi-Fi information. While you do not need sudo to run the script, you will get a popup prompt asking for your username and password. This is needed in MacOS in order to read information from the keychain.
+On MacOS the `airport` utility is used to access saved Wi-Fi information. While you do not need `sudo` to run the script, you will get a popup prompt asking for your username and password. This is needed in MacOS in order to read information from the keychain.
 <p align="center">
   <img src="https://thanosgn.github.io/assets/macos-prompt.png">
 </p>
