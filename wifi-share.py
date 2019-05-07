@@ -123,6 +123,20 @@ def main():
                 log(bad(e))
                 print(bad('Error getting Wi-Fi connections'))
                 sys.exit(1)
+        elif system == 'Darwin':
+            available_networks = []
+            try:
+                output = execute([['defaults', 'read', '/Library/Preferences/SystemConfiguration/com.apple.airport.preferences'],\
+                ['grep', 'SSIDString']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                for line in output.splitlines():
+                    if line.startswith('            SSIDString ='):
+                        available_networks.append(line.split('=')[1].lstrip()[:-1].replace('"', ''))
+                if available_networks == []:
+                    raise ProcessError
+            except ProcessError as e:
+                log(bad(e))
+                print(bad('Error getting Wi-Fi connections'))
+                sys.exit(1)
         else:
             available_networks = sorted(os.listdir(u'/etc/NetworkManager/system-connections'))
         questions = [
@@ -142,6 +156,13 @@ def main():
                 output = execute(['netsh', 'wlan', 'show', 'interfaces'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
                 for line in output.splitlines():
                     if line.startswith('    SSID'):
+                       wifi_name = line.split(':')[1].lstrip()
+                if wifi_name == None:
+                    raise ProcessError
+            elif system == 'Darwin':
+                output = execute(['/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport', '-I'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                for line in output.splitlines():
+                    if line.startswith('           SSID'):
                        wifi_name = line.split(':')[1].lstrip()
                 if wifi_name == None:
                     raise ProcessError
@@ -166,6 +187,10 @@ def main():
                 for line in output.splitlines():
                     if line.startswith('    Key Content'):
                        wifi_password = line.split(':')[1].lstrip()
+                if wifi_password == None:
+                    raise ProcessError
+            elif system == 'Darwin':
+                wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
                 if wifi_password == None:
                     raise ProcessError
             else:
@@ -210,7 +235,7 @@ def main():
                 img = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathFillImage)
                 filename = args.image + '.svg'
         img.save(filename)
-        if system != 'Windows':
+        if system == 'Linux':
             fix_ownership(filename)
         print(good('Qr code drawn in '+filename))
 
