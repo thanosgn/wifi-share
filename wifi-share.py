@@ -109,7 +109,6 @@ def main():
 
     system = platform.system()
 
-
     if args.list:
         if system == 'Windows':
             available_networks = []
@@ -174,13 +173,14 @@ def main():
                     for line in network_file:
                         if 'psk=' in line:
                             wifi_password = line.split('=')[1].rstrip('\r\n')
-        except IOError as e:
+        except (ProcessError, IOError) as e:
             log(bad(e))
             print(bad('Error getting Wi-Fi password'))
-            if e.errno == 13:
-                print(que('Are you root?'))
-            elif e.errno == 2 and args.ssid != None:
-                print(que('Are you sure SSID is correct?'))
+            if e.__class__ == IOError:
+                if e.errno == 13:
+                    print(que('Are you root?'))
+                elif e.errno == 2 and args.ssid != None:
+                    print(que('Are you sure SSID is correct?'))
             sys.exit(1)
 
     if wifi_password != '':
