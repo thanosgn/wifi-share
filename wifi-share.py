@@ -110,8 +110,8 @@ def main():
     system = platform.system()
 
     if args.list:
+        available_networks = []
         if system == 'Windows':
-            available_networks = []
             try:
                 output = execute(['netsh', 'wlan', 'show', 'profiles'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
                 for line in output.splitlines():
@@ -124,7 +124,6 @@ def main():
                 print(bad('Error getting Wi-Fi connections'))
                 sys.exit(1)
         elif system == 'Darwin':
-            available_networks = []
             try:
                 output = execute([['defaults', 'read', '/Library/Preferences/SystemConfiguration/com.apple.airport.preferences'],\
                 ['grep', 'SSIDString']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
@@ -138,7 +137,17 @@ def main():
                 print(bad('Error getting Wi-Fi connections'))
                 sys.exit(1)
         else:
-            available_networks = sorted(os.listdir(u'/etc/NetworkManager/system-connections'))
+            try:
+                output = execute([['nmcli', 'connection', 'show', '--order', 'type:name'],\
+                ['grep', '-w', 'wifi'],\
+                ['awk', 'NR > 1 {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                available_networks = output.splitlines()
+                if available_networks == []:
+                    raise ProcessError
+            except ProcessError as e:
+                log(bad(e))
+                print(bad('Error getting Wi-Fi connections'))
+                sys.exit(1)
         questions = [
             {
                 'type': 'list',
@@ -187,17 +196,14 @@ def main():
                 for line in output.splitlines():
                     if line.startswith('    Key Content'):
                        wifi_password = line.split(':')[1].lstrip()
-                if wifi_password == None:
-                    raise ProcessError
             elif system == 'Darwin':
                 wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-                if wifi_password == None:
-                    raise ProcessError
             else:
-                with open( os.path.join('/etc/NetworkManager/system-connections', wifi_name), 'r') as network_file:
-                    for line in network_file:
-                        if 'psk=' in line:
-                            wifi_password = line.split('=')[1].rstrip('\r\n')
+                wifi_password = execute([['nmcli', 'connection', 'show', 'id', wifi_name, '--show-secrets'],\
+                ['grep', '802-11-wireless-security.psk:'],\
+                ['awk', '{print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+            if wifi_password == None:
+                raise ProcessError
         except (ProcessError, IOError) as e:
             log(bad(e))
             print(bad('Error getting Wi-Fi password'))
