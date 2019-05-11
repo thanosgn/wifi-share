@@ -72,9 +72,6 @@ optional arguments:
 ```
 
 ## Notes
-Unfortunately, in Linux systems using _NetworkManager_ root privileges are required in ordered to read the password of a saved WiFi connection. That is why, unless you are `root`, you should run the script with `sudo` (as shown in the example).
-
-The same does not apply on Windows systems. `netsh` does not need administrator privileges.
 
 On MacOS the `airport` utility is used to access saved Wi-Fi information. While you do not need `sudo` to run the script, you will get a popup prompt asking for your username and password. This is needed in MacOS in order to read information from the keychain.
 <p align="center">
