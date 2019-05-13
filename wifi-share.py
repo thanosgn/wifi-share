@@ -106,6 +106,7 @@ def main():
     args = parser.parse_args()
     verbose = args.verbose
     wifi_name = args.ssid
+    connection_name = ''
 
     system = platform.system()
 
@@ -176,7 +177,14 @@ def main():
                 if wifi_name == None:
                     raise ProcessError
             else:
-                wifi_name = execute(['iwgetid', '-r'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                wifi_name = execute([['nmcli', '--terse', '--fields', 'active,ssid', 'device', 'wifi'],\
+                ['awk', 'BEGIN { FS = ":" } ; /yes/ {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                if wifi_name == '':
+                    raise ProcessError
+                connection_name = execute([['nmcli', '-terse', '-fields', 'name,type', 'connection', 'show', '--active'],\
+                ['awk', 'BEGIN { FS = ":" } ; /wireless/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                if connection_name == '':
+                    raise ProcessError
         except ProcessError as e:
             log(bad(e))
             print(bad('Error getting Wi-Fi name'))
@@ -199,9 +207,8 @@ def main():
             elif system == 'Darwin':
                 wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             else:
-                wifi_password = execute([['nmcli', 'connection', 'show', 'id', wifi_name, '--show-secrets'],\
-                ['grep', '802-11-wireless-security.psk:'],\
-                ['awk', '{print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                wifi_password = execute([['nmcli', '--terse', '--fields', '802-11-wireless-security.psk', '--show-secrets', 'connection', 'show', 'id', connection_name],\
+                ['awk', 'BEGIN { FS = ":" } ; {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             if wifi_password == None:
                 raise ProcessError
         except (ProcessError, IOError) as e:
