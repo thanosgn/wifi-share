@@ -139,9 +139,8 @@ def main():
                 sys.exit(1)
         else:
             try:
-                output = execute([['nmcli', 'connection', 'show', '--order', 'type:name'],\
-                ['grep', '-w', 'wifi'],\
-                ['awk', 'NR > 1 {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                output = execute([['nmcli', '--terse', '--fields', 'name,type', 'connection', 'show'],\
+                ['awk', 'BEGIN { FS = ":" } ; /wireless|wifi/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
                 available_networks = output.splitlines()
                 if available_networks == []:
                     raise ProcessError
@@ -149,17 +148,25 @@ def main():
                 log(bad(e))
                 print(bad('Error getting Wi-Fi connections'))
                 sys.exit(1)
+
         questions = [
             {
                 'type': 'list',
                 'name': 'network',
-                'message': 'SSID:',
+                'message': 'Wi-Fi connection:',
                 'choices' : available_networks
             }
         ]
         answer = prompt(questions)
-        wifi_name = answer['network']
-        log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
+        # In Windows and Darwin the list of connections *are* SSIDs, so the
+        # answer is the wifi_name. With 'nmcli' the list of connections just
+        # show the connection names. We have to retrieve the wifi_name with it.
+        if system == 'Windows' or system == 'Darwin':
+            wifi_name = answer['network']
+        else:
+            connection_name = answer['network']
+            wifi_name = execute([['nmcli', '--terse', '--fields', '802-11-wireless.ssid', '--show-secrets', 'connection', 'show', 'id', connection_name],\
+            ['awk', 'BEGIN { FS = ":" } ; {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     elif args.ssid == None:
         try:
             if system == 'Windows':
@@ -182,7 +189,7 @@ def main():
                 if wifi_name == '':
                     raise ProcessError
                 connection_name = execute([['nmcli', '-terse', '-fields', 'name,type', 'connection', 'show', '--active'],\
-                ['awk', 'BEGIN { FS = ":" } ; /wireless/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                ['awk', 'BEGIN { FS = ":" } ; /wireless|wifi/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
                 if connection_name == '':
                     raise ProcessError
         except ProcessError as e:
@@ -191,9 +198,8 @@ def main():
             print(que('Are you sure you are connected to a Wi-Fi network?'))
             sys.exit(1)
         log(good('You are connected to ' + green(wifi_name) + ' Wi-Fi'))
-    else:
-        log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
 
+    log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     wifi_password = ''
     if args.password != None:
         wifi_password = args.password
