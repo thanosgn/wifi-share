@@ -36,7 +36,7 @@ class ProcessError(Exception):
 
 # Execute provided command(s).
 # In case of multiple commands, pipe them.
-def execute(commands, stdout, stdin, stderr):
+def execute(commands, stdout=PIPE, stdin=PIPE, stderr=STDOUT):
     input = stdin
     if not any(isinstance(el, list) for el in commands): # if we have only one command
         commands = [commands]
@@ -114,7 +114,7 @@ def main():
         available_networks = []
         if system == 'Windows':
             try:
-                output = execute(['netsh', 'wlan', 'show', 'profiles'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                output = execute(['netsh', 'wlan', 'show', 'profiles']).rstrip()
                 for line in output.splitlines():
                     if line.startswith('    All User Profile'):
                        available_networks.append(line.split(':')[1].lstrip())
@@ -126,8 +126,8 @@ def main():
                 sys.exit(1)
         elif system == 'Darwin':
             try:
-                output = execute([['defaults', 'read', '/Library/Preferences/SystemConfiguration/com.apple.airport.preferences'],\
-                ['grep', 'SSIDString']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                output = execute([['defaults', 'read', '/Library/Preferences/SystemConfiguration/com.apple.airport.preferences'],
+                ['grep', 'SSIDString']])
                 for line in output.splitlines():
                     if line.startswith('            SSIDString ='):
                         available_networks.append(line.split('=')[1].lstrip()[:-1].replace('"', ''))
@@ -140,14 +140,12 @@ def main():
         else:
             try:
                 output = execute([['nmcli', '--terse', '--fields', 'name,type', 'connection', 'show'],
-                ['awk', '-F:', '/802-11-wireless/ {print $1}']],
-                stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                ['awk', '-F:', '/802-11-wireless/ {print $1}']])
                 connections = output.splitlines()
                 if connections == []:
                     raise ProcessError
                 available_networks = [execute([['nmcli', '--terse', 'connection', 'show', connection],
-                ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']],
-                stdout=PIPE, stdin=PIPE, stderr=STDOUT) for connection in connections]
+                ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']]) for connection in connections]
                 if available_networks == []:
                     raise ProcessError
             except ProcessError as e:
@@ -169,26 +167,26 @@ def main():
     elif args.ssid == None:
         try:
             if system == 'Windows':
-                output = execute(['netsh', 'wlan', 'show', 'interfaces'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                output = execute(['netsh', 'wlan', 'show', 'interfaces']).rstrip()
                 for line in output.splitlines():
                     if line.startswith('    SSID'):
                        wifi_name = line.split(':')[1].lstrip()
                 if wifi_name == None:
                     raise ProcessError
             elif system == 'Darwin':
-                output = execute(['/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport', '-I'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                output = execute(['/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport', '-I'])
                 for line in output.splitlines():
                     if line.startswith('           SSID'):
                        wifi_name = line.split(':')[1].lstrip()
                 if wifi_name == None:
                     raise ProcessError
             else:
-                wifi_name = execute([['nmcli', '--terse', '--fields', 'active,ssid', 'device', 'wifi'],\
-                ['awk', '-F:', '/yes/ {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                wifi_name = execute([['nmcli', '--terse', '--fields', 'active,ssid', 'device', 'wifi'],
+                ['awk', '-F:', '/yes/ {print $2}']])
                 if wifi_name == '':
                     raise ProcessError
-                connection_name = execute([['nmcli', '--terse', '-fields', 'name,type', 'connection', 'show', '--active'],\
-                ['awk', '-F:', '/802-11-wireless/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                connection_name = execute([['nmcli', '--terse', '-fields', 'name,type', 'connection', 'show', '--active'],
+                ['awk', '-F:', '/802-11-wireless/ {print $1}']])
                 if connection_name == '':
                     raise ProcessError
         except ProcessError as e:
@@ -206,17 +204,16 @@ def main():
     else:
         try:
             if system == 'Windows':
-                output = execute(['netsh', 'wlan', 'show', 'profile', wifi_name, 'key=clear'], stdout=PIPE, stdin=PIPE, stderr=STDOUT).rstrip()
+                output = execute(['netsh', 'wlan', 'show', 'profile', wifi_name, 'key=clear']).rstrip()
                 for line in output.splitlines():
                     if line.startswith('    Key Content'):
                        wifi_password = line.split(':')[1].lstrip()
             elif system == 'Darwin':
-                wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name])
             else:
                 if connection_name == '':
                     output = execute([['nmcli', '--terse', '--fields', 'name,type', 'connection', 'show'],
-                    ['awk', '-F:', '/802-11-wireless/ {print $1}']],
-                    stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                    ['awk', '-F:', '/802-11-wireless/ {print $1}']])
                     connections = output.splitlines()
                     if connections == []:
                         raise ProcessError
@@ -225,13 +222,12 @@ def main():
                     else:
                         for connection in connections:
                             ssid = execute([['nmcli', '--terse', 'connection', 'show', connection],
-                            ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']],
-                            stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                            ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']])
                             if ssid == wifi_name:
                                 connection_name = connection
                                 break
-                wifi_password = execute([['nmcli', '--terse', '--fields', '802-11-wireless-security.psk', '--show-secrets', 'connection', 'show', 'id', connection_name],\
-                ['awk', '-F:', '{print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                wifi_password = execute([['nmcli', '--terse', '--fields', '802-11-wireless-security.psk', '--show-secrets', 'connection', 'show', 'id', connection_name],
+                ['awk', '-F:', '{print $2}']])
             if wifi_password == None:
                 raise ProcessError
         except (ProcessError, IOError) as e:
