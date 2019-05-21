@@ -37,11 +37,18 @@ class ProcessError(Exception):
 # Execute provided command(s).
 # In case of multiple commands, pipe them.
 def execute(commands, stdout=PIPE, stdin=PIPE, stderr=STDOUT):
+    logged = False
     input = stdin
     if not any(isinstance(el, list) for el in commands): # if we have only one command
         commands = [commands]
+    else:
+        log(run(bold('Running: ') + ' | '.join([' '.join(command) for command in commands])))
+        logged = True
     for command in commands:
-        log(run('Running: ' + ' '.join(command)))
+        if logged:
+            log(run('... ' + ' '.join(command)))
+        else:
+            log(run(bold('Running: ') + ' '.join(command)))
         process = Popen(command, stdout = stdout, stdin = input, stderr = stderr)
         input = process.stdout
     out, err = process.communicate();
