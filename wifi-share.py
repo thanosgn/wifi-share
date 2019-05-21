@@ -111,6 +111,11 @@ def main():
     parser.add_argument('-p', '--password', help = 'Specify a desired password to be used instead of the stored one.')
     parser.add_argument('-l', '--list', help = 'Display a list of stored Wi-Fi networks (SSIDs) to choose from.', action = 'store_true')
     args = parser.parse_args()
+
+    if args.list and args.ssid:
+        print(bad('The -s/--ssid SSID and -l/--list are mutually exclusive arguments.'))
+        sys.exit(1)
+
     verbose = args.verbose
     wifi_name = args.ssid
     connection_name = ''
