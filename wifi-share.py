@@ -139,10 +139,15 @@ def main():
                 sys.exit(1)
         else:
             try:
-                output = execute([['nmcli', 'connection', 'show', '--order', 'type:name'],\
-                ['grep', '-w', 'wifi'],\
-                ['awk', 'NR > 1 {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-                available_networks = output.splitlines()
+                output = execute([['nmcli', '--terse', '--fields', 'name,type', 'connection', 'show'],
+                ['awk', '-F:', '/802-11-wireless/ {print $1}']],
+                stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                connections = output.splitlines()
+                if connections == []:
+                    raise ProcessError
+                available_networks = [execute([['nmcli', '--terse', 'connection', 'show', connection],
+                ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']],
+                stdout=PIPE, stdin=PIPE, stderr=STDOUT) for connection in connections]
                 if available_networks == []:
                     raise ProcessError
             except ProcessError as e:
@@ -159,6 +164,7 @@ def main():
         ]
         answer = prompt(questions)
         wifi_name = answer['network']
+        connection_name = connections[available_networks.index(wifi_name)]
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     elif args.ssid == None:
         try:
@@ -178,11 +184,11 @@ def main():
                     raise ProcessError
             else:
                 wifi_name = execute([['nmcli', '--terse', '--fields', 'active,ssid', 'device', 'wifi'],\
-                ['awk', 'BEGIN { FS = ":" } ; /yes/ {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                ['awk', '-F:', '/yes/ {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
                 if wifi_name == '':
                     raise ProcessError
-                connection_name = execute([['nmcli', '-terse', '-fields', 'name,type', 'connection', 'show', '--active'],\
-                ['awk', 'BEGIN { FS = ":" } ; /wireless/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                connection_name = execute([['nmcli', '--terse', '-fields', 'name,type', 'connection', 'show', '--active'],\
+                ['awk', '-F:', '/802-11-wireless/ {print $1}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
                 if connection_name == '':
                     raise ProcessError
         except ProcessError as e:
@@ -207,8 +213,25 @@ def main():
             elif system == 'Darwin':
                 wifi_password = execute(['security', 'find-generic-password', '-wga', wifi_name], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             else:
+                if connection_name == '':
+                    output = execute([['nmcli', '--terse', '--fields', 'name,type', 'connection', 'show'],
+                    ['awk', '-F:', '/802-11-wireless/ {print $1}']],
+                    stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                    connections = output.splitlines()
+                    if connections == []:
+                        raise ProcessError
+                    if args.list:
+                        connection_name = connections[available_networks.index(wifi_name)]
+                    else:
+                        for connection in connections:
+                            ssid = execute([['nmcli', '--terse', 'connection', 'show', connection],
+                            ['awk', '-F:', '/802-11-wireless.ssid/ {print $2}']],
+                            stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                            if ssid == wifi_name:
+                                connection_name = connection
+                                break
                 wifi_password = execute([['nmcli', '--terse', '--fields', '802-11-wireless-security.psk', '--show-secrets', 'connection', 'show', 'id', connection_name],\
-                ['awk', 'BEGIN { FS = ":" } ; {print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+                ['awk', '-F:', '{print $2}']], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             if wifi_password == None:
                 raise ProcessError
         except (ProcessError, IOError) as e:
