@@ -173,6 +173,8 @@ def main():
             }
         ]
         answer = prompt(questions)
+        if answer == {}:
+            raise KeyboardInterrupt
         wifi_name = answer['network']
         if system == 'Linux':
             connection_name = connections[available_networks.index(wifi_name)]
@@ -286,4 +288,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        log('\nk bye')
+        sys.exit(1)
