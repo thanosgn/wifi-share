@@ -174,7 +174,8 @@ def main():
         ]
         answer = prompt(questions)
         wifi_name = answer['network']
-        connection_name = connections[available_networks.index(wifi_name)]
+        if system == 'Linux':
+            connection_name = connections[available_networks.index(wifi_name)]
         log(run('Retrieving the password for ' + green(wifi_name) + ' Wi-Fi'))
     elif args.ssid == None:
         try:
