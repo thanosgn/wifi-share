@@ -30,7 +30,7 @@ On Windows you can use `cmd` to install and use the script.
 wifi-share
 ```
 
-If you did not use the provided Makefile, and you don't have a symlink to the python script, then using `python wifi-share.py` will do just fine.
+If you did not use the provided Makefile, and you don't `wifi-share` in your executable path, then using `python wifi-share.py` will do just fine.
 
 See also the [_Notes_](#notes) section below.
 
