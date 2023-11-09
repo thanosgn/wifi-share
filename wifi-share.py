@@ -54,10 +54,10 @@ def execute(commands, stdout=PIPE, stdin=PIPE, stderr=STDOUT):
     out, err = process.communicate();
     rc = process.returncode
     if out != None:
-        out = out.decode("utf-8").rstrip()
+        out = out.decode("utf-8", errors='ignore').rstrip()
     if rc != 0:
         if err != None:
-            err = err.decode("utf-8").rstrip()
+            err = err.decode("utf-8", errors='ignore').rstrip()
             raise ProcessError(err)
         else:
             raise ProcessError(out)
